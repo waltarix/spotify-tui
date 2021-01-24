@@ -17,7 +17,7 @@ use tui::{
   layout::{Alignment, Constraint, Direction, Layout, Rect},
   style::{Modifier, Style},
   text::{Span, Spans, Text},
-  widgets::{Block, Borders, Clear, Gauge, List, ListItem, ListState, Paragraph, Row, Table, Wrap},
+  widgets::{Block, Borders, BorderType, Clear, Gauge, List, ListItem, ListState, Paragraph, Row, Table, Wrap},
   Frame,
 };
 use util::{
@@ -113,6 +113,7 @@ where
           "Help (press <Esc> to go back)",
           help_menu_style,
         ))
+        .border_type(BorderType::Rounded)
         .border_style(help_menu_style),
     )
     .style(help_menu_style)
@@ -153,6 +154,7 @@ where
         "Search",
         get_color(highlight_state, app.user_config.theme),
       ))
+      .border_type(BorderType::Double)
       .border_style(get_color(highlight_state, app.user_config.theme)),
   );
   f.render_widget(input, chunks[0]);
@@ -167,6 +169,7 @@ where
   let block = Block::default()
     .title(Span::styled("Help", Style::default().fg(help_block_text.0)))
     .borders(Borders::ALL)
+    .border_type(BorderType::Plain)
     .border_style(Style::default().fg(help_block_text.0));
 
   let lines = Text::from(help_block_text.1);
@@ -651,8 +654,8 @@ where
         width: 2,
       },
       TableHeaderItem {
-        text: "#",
-        width: 3,
+        text: "  #",
+        width: 4,
         ..Default::default()
       },
       TableHeaderItem {
@@ -690,7 +693,7 @@ where
             id: item.id.clone().unwrap_or_else(|| "".to_string()),
             format: vec![
               "".to_string(),
-              item.track_number.to_string(),
+              format!("{:>3}", item.track_number),
               item.name.to_owned(),
               create_artist_string(&item.artists),
               millis_to_minutes(u128::from(item.duration_ms)),
@@ -717,7 +720,7 @@ where
             id: item.id.clone().unwrap_or_else(|| "".to_string()),
             format: vec![
               "".to_string(),
-              item.track_number.to_string(),
+              format!("{:>3}", item.track_number),
               item.name.to_owned(),
               create_artist_string(&item.artists),
               millis_to_minutes(u128::from(item.duration_ms)),
@@ -978,6 +981,7 @@ where
           &title,
           get_color(highlight_state, app.user_config.theme),
         ))
+        .border_type(BorderType::Thick)
         .border_style(get_color(highlight_state, app.user_config.theme));
 
       f.render_widget(title_block, layout_chunk);
@@ -1109,6 +1113,7 @@ where
           "Error",
           Style::default().fg(app.user_config.theme.error_border),
         ))
+        .border_type(BorderType::Rounded)
         .border_style(Style::default().fg(app.user_config.theme.error_border)),
     );
   f.render_widget(playing_paragraph, chunks[0]);
@@ -1136,6 +1141,7 @@ where
       get_color(highlight_state, app.user_config.theme),
     ))
     .borders(Borders::ALL)
+    .border_type(BorderType::Rounded)
     .border_style(get_color(highlight_state, app.user_config.theme));
   f.render_widget(welcome, layout_chunk);
 
@@ -1335,6 +1341,7 @@ where
           Style::default().fg(app.user_config.theme.active),
         ))
         .borders(Borders::ALL)
+        .border_type(BorderType::Rounded)
         .border_style(Style::default().fg(app.user_config.theme.inactive)),
     )
     .style(Style::default().fg(app.user_config.theme.text))
@@ -1658,11 +1665,12 @@ fn draw_selectable_list<B, S>(
           get_color(highlight_state, app.user_config.theme),
         ))
         .borders(Borders::ALL)
+        .border_type(BorderType::Rounded)
         .border_style(get_color(highlight_state, app.user_config.theme)),
     )
     .style(Style::default().fg(app.user_config.theme.text))
     .highlight_style(
-      get_color(highlight_state, app.user_config.theme).add_modifier(Modifier::BOLD),
+      get_color(highlight_state, app.user_config.theme).add_modifier(Modifier::ITALIC | Modifier::BOLD),
     );
   f.render_stateful_widget(list, layout_chunk, &mut state);
 }
@@ -1686,6 +1694,7 @@ where
 
       let block = Block::default()
         .borders(Borders::ALL)
+        .border_type(BorderType::Rounded)
         .border_style(Style::default().fg(app.user_config.theme.inactive));
 
       f.render_widget(block, rect);
@@ -1756,7 +1765,7 @@ fn draw_table<B>(
   B: Backend,
 {
   let selected_style =
-    get_color(highlight_state, app.user_config.theme).add_modifier(Modifier::BOLD);
+    get_color(highlight_state, app.user_config.theme).add_modifier(Modifier::ITALIC | Modifier::BOLD);
 
   let track_playing_index = app.current_playback_context.to_owned().and_then(|ctx| {
     ctx.item.and_then(|item| match item {
@@ -1851,6 +1860,7 @@ fn draw_table<B>(
           title,
           get_color(highlight_state, app.user_config.theme),
         ))
+        .border_type(BorderType::Rounded)
         .border_style(get_color(highlight_state, app.user_config.theme)),
     )
     .style(Style::default().fg(app.user_config.theme.text))
